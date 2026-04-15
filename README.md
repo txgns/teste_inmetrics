@@ -1,67 +1,118 @@
-# Automação da plataforma Advantage Online Shopping com Cypress
+# Automação da plataforma Novo IM (GiGroup) com Cypress
 
+Projeto de automação de testes end-to-end e de API para a plataforma **Novo IM** (`novoim.gigroup.com.br`), utilizando **Cypress** com **Cucumber** (BDD) para escrita dos cenários em Gherkin.
 
-# Instalando dependecias do projeto
+## Stack
 
-primeiramente monte o ambiente para poder rodar a automação!
+- [Cypress](https://www.cypress.io/) 15.x — execução dos testes
+- [cypress-cucumber-preprocessor](https://www.npmjs.com/package/cypress-cucumber-preprocessor) — suporte a `.feature` / Gherkin
+- [dotenv](https://www.npmjs.com/package/dotenv) — carregamento de variáveis de ambiente
+- Node.js
 
-É necessario ter o Node.js instalado na sua maquina para executar os comandos que viram a seguir. Caso esteja em um ambiente o Windows basta acessar o site do Node,js e baixar a ultima versão.
+## Estrutura do projeto
 
-<a href="https://nodejs.org/pt">Link Node.js</a>
+```
+teste_automacao/
+├── cypress/
+│   ├── e2e/
+│   │   ├── helper/                 # utilitários compartilhados
+│   │   └── integrations/
+│   │       ├── API/                # testes de API (features + steps)
+│   │       ├── Web/                # testes Web
+│   │       │   ├── features/       # cenários .feature (Gherkin)
+│   │       │   ├── pageobjects/    # Page Objects
+│   │       │   ├── steps/          # step definitions
+│   │       │   └── elements/       # mapeamento de elementos
+│   │       └── Helper/             # extrator de elementos da página
+│   ├── fixtures/                   # massa de dados
+│   ├── downloads/ screenshots/ videos/
+│   └── support/                    # comandos e hooks globais
+├── cypress.config.js
+├── package.json
+└── .env                            # credenciais e variáveis (não versionado)
+```
 
-após a instalação, pode verificar a versão com o comando:
+Cenários atualmente cobertos: `login.feature` e `contratos_im.feature` (área Web).
+
+## Pré-requisitos
+
+É necessário ter o **Node.js** instalado. Caso esteja em um ambiente Windows, basta acessar o site do Node.js e baixar a última versão LTS.
+
+[Link Node.js](https://nodejs.org/pt)
+
+Após a instalação, pode verificar a versão com o comando:
 
 ```
 node --version
 ```
-Caso esteja em um ambiente Linus, siga os passos abaixo:
+
+Caso esteja em um ambiente **Linux**, siga os passos abaixo.
 
 No terminal, digite o comando de instalação do curl:
 
 ```
 sudo apt-get install curl
 ```
+
 Em seguida, execute o script abaixo para adicionar o repositório do Node:
 
 ```
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
 ```
+
 E por fim, para instalar o Node execute:
 
 ```
 sudo apt-get install -y nodejs
 ```
 
-Com o Node.js instalado, será necessario instalar o cypress com cucumber usando seguinte comando:
+Também é preciso ter o **Git** instalado. Caso ainda não tenha, siga os passos nesse [Link](https://git-scm.com/book/pt-br/v2/Começando-Instalando-o-Git).
 
-```
-npm install --save-dev cypress cypress-cucumber-preprocessor
-```
+## Instalando as dependências
 
-E então verifique se possui o git instalado na sua maquina, caso não basta seguir os passos nesse <a href="https://git-scm.com/book/pt-br/v2/Começando-Instalando-o-Git">Link</a>
-
-Após realizar o clone do repositório, basta acessar o diretorio do projeto e executar o comando:
+Após realizar o clone do repositório, acesse o diretório do projeto e execute:
 
 ```
 npm install
 ```
-Todas as dependecias do projeto irão ser instaladas!
 
-# Executando o projeto
+Todas as dependências do projeto (incluindo Cypress e o preprocessor do Cucumber) serão instaladas conforme o `package.json`.
 
-Para executar o teste pode ser feito tanto por comando, quanto pelo painel do Cypress.
+## Variáveis de ambiente
 
-Abaixo o comando executa os testes através do CLI, exibindo os resultados linha a linha:
+Crie um arquivo `.env` na raiz do projeto com as credenciais usadas pelos testes:
+
+```
+CYPRESS_ID_CLIENT=<id do cliente>
+CYPRESS_USER=<usuário>
+CYPRESS_SENHA=<senha>
+```
+
+Essas variáveis são carregadas em [cypress.config.js](cypress.config.js) via `dotenv` e ficam disponíveis em `Cypress.config()`. O arquivo `.env` está listado no [.gitignore](.gitignore) e **não deve ser versionado**.
+
+## Executando os testes
+
+Execução headless no Chrome (CLI), exibindo os resultados linha a linha:
+
 ```
 npm run test:chrome
 ```
 
-Abaixo o comando inicia a interface do Cypress para executar os testes pelo painel da ferramenta:
+Execução gravando no Cypress Cloud (necessário record key válido):
+
+```
+npm run test:panel
+```
+
+Para abrir a interface gráfica do Cypress e acompanhar a execução visualmente:
+
 ```
 npx cypress open
 ```
-Através do painel você pode acompanhar o teste visualmente.
 
+## Padrão de escrita dos testes
 
-
-
+- Features em **Gherkin** (`.feature`) ficam em `cypress/e2e/integrations/<área>/features/`.
+- Step definitions correspondentes ficam em `cypress/e2e/integrations/<área>/steps/`.
+- A configuração `nonGlobalStepDefinitions: false` ([cypress.config.js](cypress.config.js)) faz com que os steps sejam compartilháveis entre as features.
+- A organização Web segue o padrão **Page Object**, com mapeamento de elementos isolado em `elements/`.
